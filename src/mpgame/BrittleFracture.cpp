@@ -332,6 +332,8 @@ idBrittleFracture::RemoveShard
 void idBrittleFracture::RemoveShard( int index ) {
 	int i;
 
+	// the shard owns its decals, free them before the shard itself
+	shards[index]->decals.DeleteContents( true );
 	delete shards[index];
 	shards.RemoveIndex( index );
 	physicsObj.RemoveIndex( index );

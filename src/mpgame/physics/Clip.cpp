@@ -910,7 +910,13 @@ void idClip::Init( void ) {
 
 	// get world map bounds
 	world = collisionModelManager->LoadModel( gameLocal.GetMapName(), WORLD_MODEL_NAME );
-	world->GetBounds( worldBounds );
+	if ( world == NULL ) {
+		// no world collision model, fall back to empty bounds instead of crashing
+		common->Warning( WORLD_MODEL_NAME " collision model not found" );
+		worldBounds.Zero();
+	} else {
+		world->GetBounds( worldBounds );
+	}
 
 	// create world sectors
 // RAVEN BEGIN
