@@ -8871,7 +8871,8 @@ idEntity* idGameLocal::HitScan(
 
 				continue;
 			// Reflect off a bounce target?
-			} else if ( (tr.c.material->GetSurfaceFlags ( ) & SURF_BOUNCE) && !hitscanDict.GetBool ( "noBounce" ) ) {
+			// tr.c.material can be NULL, so check before dereferencing it
+			} else if ( tr.c.material && (tr.c.material->GetSurfaceFlags ( ) & SURF_BOUNCE) && !hitscanDict.GetBool ( "noBounce" ) ) {
 				reflect++;
 			}
 
@@ -8934,6 +8935,7 @@ idEntity* idGameLocal::HitScan(
 				} else { 
 					if ( actualHitEnt
 						 && actualHitEnt != ent
+						 && tr.c.material
 						 && (tr.c.material->GetSurfaceFlags ( ) & SURF_BOUNCE)
 						 && actualHitEnt->spawnArgs.GetBool( "takeBounceDamage" ) )
 						{//bleh...
