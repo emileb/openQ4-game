@@ -443,7 +443,7 @@ bool idMD5Anim::LoadGeneratedAnim( const char *filename ) {
 		return false;
 	}
 
-	idStr cacheOSPath = fileSystem->RelativePathToOSPath( cachePath, "fs_savepath" );
+	idStr cacheOSPath = fileSystem->RelativePathToOSPath( cachePath, "fs_cachepath" );
 	idFile *diskCache = fileSystem->OpenExplicitFileRead( cacheOSPath );
 	if ( diskCache == NULL ) {
 		return false;
@@ -484,7 +484,7 @@ bool idMD5Anim::LoadGeneratedAnim( const char *filename ) {
 		if ( cache != NULL ) {
 			fileSystem->CloseFile( cache );
 		}
-		fileSystem->RemoveFileChecked( cachePath, "fs_savepath" );
+		fileSystem->RemoveFileChecked( cachePath, "fs_cachepath" );
 		return false;
 	}
 
@@ -636,7 +636,7 @@ bool idMD5Anim::LoadGeneratedAnim( const char *filename ) {
 	fileSystem->CloseFile( cache );
 
 	if ( !valid ) {
-		fileSystem->RemoveFileChecked( cachePath, "fs_savepath" );
+		fileSystem->RemoveFileChecked( cachePath, "fs_cachepath" );
 		return false;
 	}
 
@@ -793,9 +793,16 @@ void idMD5Anim::WriteGeneratedAnim( const char *filename ) const {
 		cache->MakeReadOnly();
 	}
 
+	// The generated/ tree is regenerable, so it belongs with the rest of the
+	// cache rather than in the save path next to configs and savegames. On
+	// Android that is the difference between the app cache directory, which the
+	// system may reclaim, and user storage, which it may not. LoadGeneratedAnim
+	// reads and invalidates the same location explicitly, not through the search
+	// path. Empty fs_cachepath resolves to fs_savepath, so this is a no-op where
+	// it is not set.
 	idStr stagedPath = cachePath;
 	stagedPath += ".tmp";
-	idFile *stagedCache = valid ? fileSystem->OpenFileWrite( stagedPath, "fs_savepath" ) : NULL;
+	idFile *stagedCache = valid ? fileSystem->OpenFileWrite( stagedPath, "fs_cachepath" ) : NULL;
 	valid = valid && stagedCache != NULL;
 	if ( valid ) {
 		valid = stagedCache->Write( cache->GetDataPtr(), recordLength ) == recordLength &&
@@ -807,8 +814,8 @@ void idMD5Anim::WriteGeneratedAnim( const char *filename ) const {
 		fileSystem->CloseFile( stagedCache );
 	}
 	fileSystem->CloseFile( cache );
-	if ( !valid || !fileSystem->PromoteFile( stagedPath, cachePath, "fs_savepath" ) ) {
-		fileSystem->RemoveFileChecked( stagedPath, "fs_savepath" );
+	if ( !valid || !fileSystem->PromoteFile( stagedPath, cachePath, "fs_cachepath" ) ) {
+		fileSystem->RemoveFileChecked( stagedPath, "fs_cachepath" );
 	}
 }
 
