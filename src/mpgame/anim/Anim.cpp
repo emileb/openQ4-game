@@ -430,7 +430,13 @@ void idMD5Anim::WriteGeneratedAnim( const char *filename ) const {
 
 	idStr cachePath;
 	GetGeneratedAnimPath( filename, cachePath );
-	idFile *cache = fileSystem->OpenFileWrite( cachePath );
+	// The generated/ tree is regenerable, so it belongs with the rest of the
+	// cache rather than in the save path next to configs and savegames. On
+	// Android that is the difference between the app cache directory, which the
+	// system may reclaim, and user storage, which it may not. Reads go through
+	// the search path and find it either way; empty fs_cachepath falls back to
+	// fs_savepath, so this is the previous behaviour where it is not set.
+	idFile *cache = fileSystem->OpenFileWrite( cachePath, "fs_cachepath" );
 	if ( cache == NULL ) {
 		return;
 	}
