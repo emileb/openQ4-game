@@ -391,6 +391,11 @@ public:
 
 	// Set any additional gui variables needed by the loading screen
 	virtual void				SetupLoadingGui( idUserInterface *gui ) = 0;
+
+	// openQ4: raw system events (SE_KEY / SE_CHAR / SE_MOUSE) offered to the game while a
+	// map is running and no engine GUI or console is active. Return true to consume the
+	// event; the default leaves the engine's key-binding path untouched.
+	virtual bool				HandleEvent( const sysEvent_t *event ) { return false; }
 };
 
 extern idGame *					game;
@@ -702,7 +707,8 @@ extern rvGameLog *				gameLog;
 //     for scene-resolution rendering with native-resolution composition/UI
 // 46: common exposes a transient game-owned time scale independently of the
 //     public timescale CVar
-const int GAME_API_VERSION		= 46;
+// 47: idGame::HandleEvent lets a game module consume raw system events
+const int GAME_API_VERSION		= 47;
 
 struct gameImport_t {
 
